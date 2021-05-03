@@ -1,0 +1,12 @@
+{
+  "name": "indigo_manager",
+  "displayName": "indigo_manager",
+  "expo": {
+    "name": "indigo_manager",
+    "slug": "indigo_manager",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
