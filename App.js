@@ -1,22 +1,12 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import AddEmploye from './src/pages/AdminPages/GestionEmployes/AddEmploye';
-import EmployesList from './src/pages/AdminPages/GestionEmployes/EmployesList';
-import Login from './src/pages/CommunPages/Login';
-
-export default function App() {
-  return (
-   
-<EmployesList></EmployesList> 
-  );
+import { NavigationContainer } from "@react-navigation/native";
+import React, { Component } from "react";
+import { AppStack } from "./src/navigation/StackNavigator";
+export default class App extends Component {
+  render() {
+    return (
+      <NavigationContainer>
+        <AppStack></AppStack>
+      </NavigationContainer>
+    );
+  }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

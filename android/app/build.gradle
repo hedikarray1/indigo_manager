@@ -81,6 +81,12 @@ project.ext.react = [
     enableHermes: false
 ]
 
+project.ext.vectoricons = [
+    iconFontNames: [ 'AntDesign.ttf', 'Feather.ttf','MaterialCommunityIcons.ttf','Entypo.ttf','SimpleLineIcons.ttf', 'FontAwesome.ttf','Octicons.ttf','EvilIcons.ttf','Fontisto.ttf' ] // Name of the font files you want to copy
+]
+
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+
 apply from: '../../node_modules/react-native-unimodules/gradle.groovy'
 apply from: "../../node_modules/react-native/react.gradle"
 apply from: "../../node_modules/expo-constants/scripts/get-app-config-android.gradle"
