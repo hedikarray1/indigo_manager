@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, View } from 'react-native'
 import { Card } from 'react-native-elements';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import { TextInput } from 'react-native-paper';
-import { BORDER_INPUTS, MAIN_BLUE } from '../../../config.js/Colors';
+import { BORDER_INPUTS, MAIN_BLUE } from '../../../config/Colors';
 
 function AddEmploye() {
 
