@@ -1,12 +1,17 @@
 import { NavigationContainer } from "@react-navigation/native";
-import React, { Component } from "react";
+import { StatusBar } from "expo-status-bar";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { AppStack } from "./src/navigation/StackNavigator";
-export default class App extends Component {
-  render() {
-    return (
-      <NavigationContainer>
-        <AppStack></AppStack>
-      </NavigationContainer>
-    );
-  }
+import AddEmploye from "./src/pages/AdminPages/GestionEmployes/AddEmploye";
+import EmployesList from "./src/pages/AdminPages/GestionEmployes/EmployesList";
+import Home from "./src/pages/CommunPages/Home";
+import Login from "./src/pages/CommunPages/Login";
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <AppStack></AppStack>
+    </NavigationContainer>
+  );
 }

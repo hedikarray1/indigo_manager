@@ -5,11 +5,12 @@ import {
   BottomTabBar,
 } from "@react-navigation/bottom-tabs";
 import { AdminStack } from "./StackNavigator";
-import { MAIN_BLUE } from "../config.js/Colors";
+import { MAIN_BLUE, white } from "../config/Colors";
 import IconFeather from "react-native-vector-icons/Feather";
 import IconMaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import IconEntypo from "react-native-vector-icons/Entypo";
 import IconAntDesign from "react-native-vector-icons/AntDesign";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const Tab = createBottomTabNavigator();
 
@@ -30,12 +31,22 @@ const AdminBottomTabNavigator = () => {
       }}
     >
       <Tab.Screen
+        name="Houses"
+        component={AdminStack}
+        initialParams={{ screen: "HousesListScreen" }}
+        options={{
+          tabBarIcon: ({ focused, color, size }) => (
+            <IconAntDesign name="home" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Employes"
         component={AdminStack}
         initialParams={{ screen: "EmployesListScreen" }}
         options={{
           tabBarIcon: ({ focused, color, size }) => (
-            <IconAntDesign name="home" color={color} size={size} />
+            <Ionicons name="people-outline" color={color} size={size} />
           ),
         }}
       />

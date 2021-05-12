@@ -4,12 +4,47 @@ import Login from "../pages/CommunPages/Login";
 import { View } from "react-native";
 import { TouchableOpacity } from "react-native";
 import IconFeather from "react-native-vector-icons/Feather";
-import { MAIN_BLUE } from "../config.js/Colors";
 import EmployesList from "../pages/AdminPages/GestionEmployes/EmployesList";
 import AddEmploye from "../pages/AdminPages/GestionEmployes/AddEmploye";
-import ProfileScreen from "../pages/CommunPages/ProfileScreen";
 import { RFPercentage } from "react-native-responsive-fontsize";
 import { AdminBottomTabNavigator } from "./TabNavigator";
+import { MAIN_BLUE } from "../config/Colors";
+import Profile from "../pages/CommunPages/Profile";
+import HousesList from "../pages/AdminPages/GestionHouses/HousesList";
+import AddHouse from "../pages/AdminPages/GestionHouses/AddHouse";
+import IconAntDesign from "react-native-vector-icons/AntDesign";
+
+const NavigationToAddHouse = (props) => {
+  return (
+    <View>
+      <TouchableOpacity
+        style={{ paddingRight: 10 }}
+        onPress={() => {
+          console.log("Add House clicked");
+          props.navigationProps.navigate("AddHouseScreen");
+        }}
+      >
+        <IconAntDesign name="pluscircleo" color={MAIN_BLUE} size={25} />
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const NavigationToAddEmplye = (props) => {
+  return (
+    <View>
+      <TouchableOpacity
+        style={{ paddingRight: 10 }}
+        onPress={() => {
+          console.log("Add Employe clicked");
+          props.navigationProps.navigate("AddEmployeScreen");
+        }}
+      >
+        <IconAntDesign name="pluscircleo" color={MAIN_BLUE} size={25} />
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 // admin stack
 const StackAdmin = createStackNavigator();
@@ -21,8 +56,11 @@ function AdminStack({ navigation }) {
         name="EmployesListScreen"
         component={EmployesList}
         options={{
-          title: "EmployesList", //Set Header Title
-
+          title: "Liste des employés", //Set Header Title
+          headerLeft: () => null,
+          headerRight: () => (
+            <NavigationToAddEmplye navigationProps={navigation} />
+          ),
           headerTitleAlign: "center",
           headerStyle: {
             backgroundColor: "white", //Set Header color
@@ -39,8 +77,7 @@ function AdminStack({ navigation }) {
         name="AddEmployeScreen"
         component={AddEmploye}
         options={{
-          title: "AddEmploye", //Set Header Title
-
+          title: "ajouter un employé", //Set Header Title
           headerTitleAlign: "center",
           headerStyle: {
             backgroundColor: "white", //Set Header color
@@ -54,10 +91,49 @@ function AdminStack({ navigation }) {
         }}
       />
       <StackAdmin.Screen
-        name="ProfileScreenScreen"
-        component={ProfileScreen}
+        name="ProfileScreen"
+        component={Profile}
         options={{
-          title: "ProfileScreen", //Set Header Title
+          title: "compte", //Set Header Title
+          headerLeft: () => null,
+          headerTitleAlign: "center",
+          headerStyle: {
+            backgroundColor: "white", //Set Header color
+          },
+          headerTintColor: MAIN_BLUE, //Set Header text color
+          headerTitleStyle: {
+            fontFamily: "Montserrat-SemiBold",
+            fontSize: RFPercentage(2.2),
+            textTransform: "uppercase",
+          },
+        }}
+      />
+      <StackAdmin.Screen
+        name="HousesListScreen"
+        component={HousesList}
+        options={{
+          title: "Liste des maisons", //Set Header Title
+          headerLeft: () => null,
+          headerRight: () => (
+            <NavigationToAddHouse navigationProps={navigation} />
+          ),
+          headerTitleAlign: "center",
+          headerStyle: {
+            backgroundColor: "white", //Set Header color
+          },
+          headerTintColor: MAIN_BLUE, //Set Header text color
+          headerTitleStyle: {
+            fontFamily: "Montserrat-SemiBold",
+            fontSize: RFPercentage(2.2),
+            textTransform: "uppercase",
+          },
+        }}
+      />
+      <StackAdmin.Screen
+        name="AddHouseScreen"
+        component={AddHouse}
+        options={{
+          title: "ajouter une maison", //Set Header Title
 
           headerTitleAlign: "center",
           headerStyle: {
