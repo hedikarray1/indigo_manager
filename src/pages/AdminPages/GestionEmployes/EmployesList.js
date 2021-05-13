@@ -7,7 +7,7 @@ import { ScrollView, StyleSheet, View } from 'react-native'
 import { Card } from 'react-native-elements';
 import { Swipeable, TouchableOpacity } from 'react-native-gesture-handler';
 import IconAntDesign from "react-native-vector-icons/AntDesign";
-import { black, bleu, or, red } from '../../../config.js/Colors';
+import { black, bleu, or, red } from '../../../config/Colors';
 
 const {width,height}=Dimensions.get("window");
 

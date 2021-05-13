@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableOpacityBase, View } from 'react-native'
-import { white ,MAIN_BLUE} from '../../config/Colors';
+import { white ,MAIN_BLUE, black} from '../../config/Colors';
 import IconAntDesign from "react-native-vector-icons/AntDesign";
 import { RFPercentage } from 'react-native-responsive-fontsize';
 const{height,width}=Dimensions.get("window");
@@ -18,13 +18,68 @@ function Profile() {
                 <Image style={styles.user_picture} source={require("../../assets/images/login_cover.jpg")}/>
                <TouchableOpacity style={styles.edit_button}><Text style={{display:"flex",justifyContent:"center",alignItems:"center"}}> <IconAntDesign  name="edit" size={25} color="#1e73be" /></Text></TouchableOpacity>
                <Text style={styles.username}>hedi karray</Text>
+               <View style={styles.personal_info_container}> 
+                   <View style={styles.personal_info_row}>
+                       <Text style={styles.personal_info_row_label}>Nom</Text>
+                       <Text style={styles.personal_info_row_value}>{currentUser.lastname}</Text>
+                   </View>
+                   <View style={styles.personal_info_row}>
+                       <Text style={styles.personal_info_row_label}>Prénom</Text>
+                       <Text style={styles.personal_info_row_value}>{currentUser.firstname}</Text>
+                   </View>
+                   <View style={styles.personal_info_row}>
+                       <Text style={styles.personal_info_row_label}>Email</Text>
+                       <Text style={styles.personal_info_row_value}>{currentUser.email}</Text>
+                   </View>
+               </View>
              </View>
+          
+          <View style={styles.user_actions_container}>
+          <View style={styles.user_password_container}> 
+             <TouchableOpacity style={styles.password_edit_button}>
+                 <Text style={styles.password_edit_button_text}>Changer le mot de passe</Text>
+             </TouchableOpacity>
+            
+             </View>
+          
+             <TouchableOpacity style={styles.user_logout_button}>
+                 <Text style={styles.password_edit_button_text}>Déconnexion</Text>
+             </TouchableOpacity>
+          </View>
+            
+            
+
          </View>
     )
 }
 
 const styles=StyleSheet.create(
-    {
+    {personal_info_row_value:{
+        fontSize:RFPercentage(2),
+        fontWeight:"600",
+        color:black
+    },
+    personal_info_row_label:{
+        fontSize:RFPercentage(2.5),
+        fontWeight:"700",
+        textTransform:"capitalize",
+        color:MAIN_BLUE
+    },
+        personal_info_container:{
+            display:"flex",
+            justifyContent:"center",
+            flexDirection:"column",
+            alignItems:"center",
+            width:"90%",
+            padding:10
+        }, 
+        personal_info_row:{
+            width:"100%",
+            display:"flex",
+            flexDirection:"row",
+            justifyContent:"space-between",
+            marginTop:5
+    },
         username:{
             marginTop:55,
             textAlign:"center",
@@ -64,6 +119,7 @@ backgroundColor:white
             borderRadius:20,
             display:"flex",
             flexDirection:"column",
+alignItems:"center",
             backgroundColor:white,
             shadowOffset:{width:2,height:2},
             shadowColor:"black",
@@ -91,8 +147,54 @@ backgroundColor:white
                 left:"33%",
                 top:"-20%"
         },
+        user_actions_container:{
+            position:"absolute",
+            top: (7*height)/12 +10,
+            
+            width:width*0.9,
+            left:0.05*width,
+        },
+        user_password_container:{
+          
+           
+            borderRadius:20,
+            display:"flex",
+            flexDirection:"column",
+alignItems:"center",
+            backgroundColor:white,
+            shadowOffset:{width:2,height:2},
+            shadowColor:"black",
+            shadowOpacity:0.2,
+            elevation: 2,
+        },
+        password_edit_button:{
+            marginVertical:5,
+            height:50,
+            borderRadius:20,
+            width:"100%",
+            display:"flex",
+            flexDirection:"column",
+            justifyContent:"center",
+            alignItems:"center",
+            backgroundColor:"#008791"
 
-
+        },
+        password_edit_button_text:{
+            color:white,
+            fontWeight:"700",
+            fontSize:RFPercentage(2.1)
+        },
+        user_logout_button:{
+            marginVertical:5,
+            height:50,
+            borderRadius:20,
+            width:"100%",
+            display:"flex",
+            flexDirection:"column",
+            justifyContent:"center",
+            alignItems:"center",
+            backgroundColor:MAIN_BLUE
+        },
     }
 )
 
