@@ -1,51 +1,62 @@
-import React, { useEffect, useState } from "react";
-import { Dimensions } from "react-native";
-import { Text } from "react-native";
-import { Image } from "react-native";
-import { Platform } from "react-native";
-import { ScrollView, StyleSheet, View } from "react-native";
-import { Card } from "react-native-elements";
+import React, { useState, useEffect } from "react";
+import { ScrollView, StyleSheet, View, Image, Text } from "react-native";
+import {
+  DataBaseRef,
+  FirebaseStorage,
+  SCREEN_HEIGHT,
+  SCREEN_WIDTH,
+} from "../../../config/Constant";
+import { db, firestorage } from "../../../config/serverConfig";
+
 import { Swipeable, TouchableOpacity } from "react-native-gesture-handler";
 import IconAntDesign from "react-native-vector-icons/AntDesign";
-import { black, bleu, or, red } from '../../../config/Colors';
+import { black, bleu, or, red } from "../../../config/Colors";
 
-const { width, height } = Dimensions.get("window");
+export default function HousesList() {
+  const [houses, sethouses] = useState([]);
+  const firestoreHouse = db.collection(DataBaseRef.house);
+  const firebaseStoreHouse = firestorage.ref(FirebaseStorage.house);
+  getHouses = async () => {
+    console.log("start getting product");
+    let hous = [];
+    await firestoreHouse
+      .get()
+      .then((snapshot) => {
+        if (snapshot.empty) {
+          console.log("houses empty");
+        }
+        snapshot.forEach(async (val) => {
+          console.log("val :", val);
+          await firebaseStoreHouse
+            .child(val.data().picture)
+            .getDownloadURL()
+            .then((url) => {
+              hous.push({
+                id: val.id,
+                title: val.data().title,
+                description: val.data().description,
+                status: val.data().status,
+                picture: val.data().picture,
+                picture_url: url,
+              });
 
-const employesStaticList = [
-  {
-    id: 1,
-    firstname: "hedi",
-    lastname: "karray",
-    email: "hedi.karray@esprit.tn",
-    role: "employee",
-  },
-  {
-    id: 2,
-    firstname: "hedi",
-    lastname: "karray",
-    email: "hedi.karray@esprit.tn",
-    role: "employee",
-  },
-  {
-    id: 3,
-    firstname: "hedi",
-    lastname: "karray",
-    email: "hedi.karray@esprit.tn",
-    role: "employee",
-  },
-  {
-    id: 4,
-    firstname: "hedi",
-    lastname: "karray",
-    email: "hedi.karray@esprit.tn",
-    role: "employee",
-  },
-];
+              sethouses(hous);
+            })
+            .catch((reason) => {
+              console.log("erreur: ", reason);
+            });
+        });
 
-function EmployesList() {
-  const [employesList, setEmployesList] = useState([]);
+        console.log("houses output", houses);
+      })
+      .catch((reason) => {
+        console.log("erreur: ", reason);
+      });
+  };
+
   useEffect(() => {
-    setEmployesList(employesStaticList);
+    getHouses();
+    console.log("houses :", houses);
   }, []);
 
   const renderDeleteButton = (index, id) => {
@@ -71,44 +82,20 @@ function EmployesList() {
   return (
     <ScrollView>
       <View>
-        {employesList.map((item, index) => (
+        {houses.map((item, index) => (
           <Swipeable
             rightButtonWidth={112}
             rightButtons={renderDeleteButton(index, item.id)}
           >
             <View style={styles.item_container} key={item.id}>
-              <View
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  right: 0,
-                  paddingHorizontal: 15,
-                  paddingVertical: 10,
-                  alignItems: "center",
-                  borderTopRightRadius: 10,
-                }}
-              >
-                <Text
-                  style={{
-                    fontFamily: "Montserrat-SemiBold",
-                    // fontSize: RFPercentage(2),
-                    color: item.role == "admin" ? bleu : red,
-                  }}
-                >
-                  {item.role == "admin" ? "Employé" : "Livreur"}
-                </Text>
-              </View>
               <Image
                 style={styles.picture}
-                // source={{ uri: item.picture }}
+                source={{ uri: item.picture_url }}
               ></Image>
               <View style={styles.user_data}>
-                <Text style={styles.txt_username}>
-                  {" "}
-                  {item.firstname + " " + item.lastname}
-                </Text>
-                <Text style={styles.txt_email}> {item.email}</Text>
-                <Text style={styles.txt_phone}> {item.phone}</Text>
+                <Text style={styles.txt_username}> {item.title}</Text>
+                <Text style={styles.txt_email}> {item.description}</Text>
+                <Text style={styles.txt_phone}> {item.status}</Text>
               </View>
             </View>
           </Swipeable>
@@ -136,8 +123,8 @@ const styles = StyleSheet.create({
     color: black,
   },
   picture: {
-    width: height / 7.5,
-    height: height / 7.5,
+    width: SCREEN_HEIGHT / 7.5,
+    height: SCREEN_HEIGHT / 7.5,
     borderRadius: 100,
     borderColor: or,
     borderWidth: 1,
@@ -172,7 +159,7 @@ const styles = StyleSheet.create({
   },
   item_container: {
     width: "100%",
-    height: height / 6,
+    height: SCREEN_HEIGHT / 6,
     backgroundColor: "#ffffff",
     display: "flex",
     flexDirection: "row",
@@ -214,7 +201,7 @@ const styles = StyleSheet.create({
     marginVertical: 7,
     elevation: 3,
     shadowColor: "#707070",
-    shadowOffset: { width: 2, height: 3 },
+    shadowOffset: { SCREEN_WIDTH: 2, SCREEN_HEIGHT: 3 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     borderWidth: 1,
@@ -227,4 +214,3 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
   },
 });
-export default EmployesList;

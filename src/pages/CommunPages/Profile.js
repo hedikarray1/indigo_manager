@@ -1,13 +1,40 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableOpacityBase, View } from 'react-native'
 import { white ,MAIN_BLUE, black} from '../../config/Colors';
 import IconAntDesign from "react-native-vector-icons/AntDesign";
-import { RFPercentage } from 'react-native-responsive-fontsize';
-const{height,width}=Dimensions.get("window");
+import { RFPercentage } from "react-native-responsive-fontsize";
+import { load } from 'npm';
+import AsyncStorage from '@react-native-community/async-storage';
+import { CURRENT_USER_KEY } from '../../config/Constant';
+import { TextInput } from 'react-native-gesture-handler';
+const { height, width } = Dimensions.get("window");
 function Profile() {
 
-    const [currentUser,setCurrentUser]=useState({id:1,firstname:"hedi",lastname:"karray", email:"hedi.karray@esprit.tn",role:"employee"});
 
+
+  const [currentUser, setCurrentUser] = useState({
+    id: 1,
+    firstname: "hedi",
+    lastname: "karray",
+    email: "hedi.karray@esprit.tn",
+    role: "employee",
+  });
+
+  useEffect(() => {
+   loadFromStorage();
+  }, [input])
+
+  const loadFromStorage= async ()=>{
+      const data=await AsyncStorage.getItem(CURRENT_USER_KEY);
+      if(data!=null){
+          const userData=JSON.parse(data);
+          setCurrentUser({...userData});
+      }
+  }
+   const logout=async ()=>{
+       AsyncStorage.clear();
+       this.props.navigation.navigate("LoginScreen")
+   }
     return (
     
          <View style={styles.main_container}>
@@ -17,7 +44,7 @@ function Profile() {
              <View style={styles.user_simple_data}>
                 <Image style={styles.user_picture} source={require("../../assets/images/login_cover.jpg")}/>
                <TouchableOpacity style={styles.edit_button}><Text style={{display:"flex",justifyContent:"center",alignItems:"center"}}> <IconAntDesign  name="edit" size={25} color="#1e73be" /></Text></TouchableOpacity>
-               <Text style={styles.username}>hedi karray</Text>
+               <Text style={styles.username}>{currentUser.firstname} {currentUser.lastname}</Text>
                <View style={styles.personal_info_container}> 
                    <View style={styles.personal_info_row}>
                        <Text style={styles.personal_info_row_label}>Nom</Text>
@@ -35,14 +62,21 @@ function Profile() {
              </View>
           
           <View style={styles.user_actions_container}>
-          <View style={styles.user_password_container}> 
+         
              <TouchableOpacity style={styles.password_edit_button}>
                  <Text style={styles.password_edit_button_text}>Changer le mot de passe</Text>
              </TouchableOpacity>
-            
+             <View style={styles.user_password_container}> 
+             <TextInput placeholder="Mot de passe actuel" />
+             <TextInput placeholder="Nouveau mot de passe" />
+             <TextInput placeholder="Confimer le mot de passe" />
+             <TouchableOpacity style={styles.password_edit_button}>
+                 <Text>Modifier</Text>
+             </TouchableOpacity>
+
              </View>
           
-             <TouchableOpacity style={styles.user_logout_button}>
+             <TouchableOpacity onPress={()=>{logout()}} style={styles.user_logout_button}>
                  <Text style={styles.password_edit_button_text}>Déconnexion</Text>
              </TouchableOpacity>
           </View>
@@ -198,4 +232,4 @@ alignItems:"center",
     }
 )
 
-export default Profile
+export default Profile;
