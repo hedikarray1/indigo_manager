@@ -38,6 +38,7 @@
     "react-native-safe-area-context": "^3.2.0",
     "react-native-screens": "^3.0.0",
     "react-native-smtp-mailer": "^1.2.4",
+    "react-native-step-indicator": "^1.0.3",
     "react-native-swipeable": "^0.6.0",
     "react-native-swipeout": "^2.3.6",
     "react-native-toast-message": "^1.4.9",

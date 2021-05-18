@@ -16,7 +16,7 @@ export default function HousesList() {
   const [houses, sethouses] = useState([]);
   const firestoreHouse = db.collection(DataBaseRef.house);
   const firebaseStoreHouse = firestorage.ref(FirebaseStorage.house);
-  getHouses = async () => {
+ const getHouses = async () => {
     console.log("start getting product");
     let hous = [];
     await firestoreHouse
@@ -25,7 +25,7 @@ export default function HousesList() {
         if (snapshot.empty) {
           console.log("houses empty");
         }
-        snapshot.forEach(async (val) => {
+        snapshot.forEach(async (val,index) => {
           console.log("val :", val);
           await firebaseStoreHouse
             .child(val.data().picture)
@@ -40,14 +40,24 @@ export default function HousesList() {
                 picture_url: url,
               });
 
-              sethouses(hous);
+            /*  sethouses([...houses,{
+                id: val.id,
+                title: val.data().title,
+                description: val.data().description,
+                status: val.data().status,
+                picture: val.data().picture,
+                picture_url: url,
+              }]);*/
+              if(index>=snapshot.size-1){
+                sethouses(hous)
+              }
             })
             .catch((reason) => {
               console.log("erreur: ", reason);
             });
         });
-
-        console.log("houses output", houses);
+      
+       // console.log("houses output", houses);
       })
       .catch((reason) => {
         console.log("erreur: ", reason);
@@ -56,8 +66,12 @@ export default function HousesList() {
 
   useEffect(() => {
     getHouses();
-    console.log("houses :", houses);
   }, []);
+
+  useEffect(() => {
+   
+    console.log("houses :", houses);
+  }, [houses]);
 
   const renderDeleteButton = (index, id) => {
     return [

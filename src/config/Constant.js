@@ -14,5 +14,5 @@ export const SIGNATURE_PICTURE_URL=SERVER_URL+"/indigo_manager/signature_picture
 export const SCREEN_HEIGHT = Dimensions.get("window").height;
 export const SCREEN_WIDTH = Dimensions.get("window").width;
 export const DataBaseRef = { house: "house",
-user:"user",reservation:"reservation" };
+user:"user",reservation:"reservation",houseItem:"houseItem" };
 export const FirebaseStorage = { house: "house" ,user:"user"};

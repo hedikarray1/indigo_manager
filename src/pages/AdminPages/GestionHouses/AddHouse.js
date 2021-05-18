@@ -1,35 +1,105 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Image, Platform, TouchableOpacity } from "react-native";
 import { Text } from "react-native";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Card } from "react-native-elements";
 import { TapGestureHandler } from "react-native-gesture-handler";
 import { TextInput } from "react-native-paper";
-import { BORDER_INPUTS, MAIN_BLUE } from "../../../config/Colors";
+import { BORDER_INPUTS, MAIN_BLUE, white } from "../../../config/Colors";
+import * as RNFS from 'react-native-fs';
+
 import {
+  UPLOAD_ENDPOINT,
   SCREEN_WIDTH,
   DataBaseRef,
   FirebaseStorage,
+  SCREEN_HEIGHT,
 } from "../../../config/Constant";
 import Toast from "react-native-toast-message";
 import { ImageRef } from "../../../config/ImageRef";
 import ImagePicker from "react-native-image-crop-picker";
 import { db, firestorage } from "../../../config/serverConfig";
+import { RFPercentage } from "react-native-responsive-fontsize";
 export default function AddHouse() {
   const firestoreHouse = db.collection(DataBaseRef.house);
+  const firestoreHouseItem= db.collection(DataBaseRef.houseItem);
   const firebaseStoreHouse = firestorage.ref(FirebaseStorage.house);
   const [house, setHouse] = useState({
+    id:"",
     title: "",
     description: "",
     status: 0,
     picture: "",
     picture_data: "",
   });
+  const[page,setPage]=useState(0);
+
   const [houseDataError, setHouseDataError] = useState({
     title: "",
     description: "",
     picture: "",
   });
+
+  const[houseItems,setHouseItems]=useState([]);
+
+    
+  const onChangeTextHouseItem = (index,field, value) => {
+    let myoldState = houseItems;
+  /*  let my_old_item=myoldState[index];
+    my_old_item[field]=value;
+    myoldState[index] = my_old_item;*/
+  /*myoldState.map((item,ind)=>{
+      ind==index?{...item,[field]:value}:item
+    });*/
+
+    setHouseItems((old)=>old.map((item,ind)=>{
+     return  ind==index?{...item,[field]:value}:item
+    })
+  );
+  };
+
+  const uploadPicture=(name,data,type)=>{
+    
+      let form_data=new FormData();
+      form_data.append("img",data);
+      form_data.append("name",name);
+      form_data.append("type",type);
+      let request = fetch(
+       "https://indigo-properties.com/indigo_manager/upload.php" ,
+        {
+          method:"POST",
+           body: form_data
+         }
+       );
+       console.log("server is:",UPLOAD_ENDPOINT,"data is:",form_data)
+       request.then((response) => {
+         console.log("upload picture response:", response.status);
+         if (response.status == 200) {
+           console.log(" succès");
+         } else {
+           console.log(
+             "response status:",
+             response.status,
+             "full response data:",
+             response
+           );
+         }
+       }).catch(e=>{
+         console.log("upload error is:",e)
+       });
+      //end
+    
+ }
+
+  const saveAllData=async ()=>{
+   await verifData();
+houseItems.forEach((item,index)=>{
+let name=new Date().getTime()+"";
+uploadPicture(name,item.picture,"item")
+  firestoreHouseItem.add({title:item.title,description:item.description,picture:name+".png",house_id:house.id}).then((res)=>{console.log("item number",index,"added")})
+})
+  }
+
   const onChangeText = (field, value) => {
     let myoldState = house;
     myoldState[field] = value;
@@ -54,9 +124,20 @@ export default function AddHouse() {
     }
     setHouseDataError(dataError);
   };
-
+  
+  useEffect(() => {
+   
+    console.log("houses :", houseItems);
+  },[houseItems] );
+  
+  useEffect(() => {
+   
+    console.log("houses :", houseItems);
+  },[] );
+  
+  /*
   useEffect = () => {
-    (async () => {
+   (async () => {
       if (Platform.OS !== "web") {
         const { status } =
           await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -66,8 +147,8 @@ export default function AddHouse() {
       }
     })();
   };
-
-  pickImage = async () => {
+*/
+ const pickImage = async () => {
     let myoldState = house;
     myoldState.picture_data = "value";
     setHouse({ ...myoldState });
@@ -84,6 +165,7 @@ export default function AddHouse() {
         height: 400,
       }).then((image1) => {
         console.log(image1);
+        
         let myoldState = house;
         myoldState.picture_data = image1.path;
         setHouse({ ...myoldState });
@@ -93,7 +175,43 @@ export default function AddHouse() {
     });
   };
 
-  uploadImage = async () => {
+
+  const pickImageItem = async (index) => {
+   // let myoldState = house;
+  //  myoldState.picture_data = "value";
+   // setHouse({ ...myoldState });
+
+    ImagePicker.openPicker({
+      width: 500,
+      height: 400,
+      includeBase64:true
+      //cropping: true
+    }).then((image) => {
+      console.log(image);
+      ImagePicker.openCropper({
+        path: image.path,
+        width: 500,
+        height: 400,
+      includeBase64:true
+      }).then((image1) => {
+       // console.log(image1);
+        console.log("picture data",image1.data)
+       onChangeTextHouseItem(index,"picture",image1.data)
+
+        console.log("setted picture data item", house.picture_data);
+      });
+    });
+  };
+
+
+const addHouseItem=()=>{
+  console.log("to add house item")
+ let old_state=houseItems;
+ // old_state.push({title:"",picture:"",description:""});
+  setHouseItems([...houseItems,{title:"",picture:"",description:""}])
+}
+
+const  uploadImage = async () => {
     console.log("uploadImage cover_picture_data:", house.picture_data);
     const uri = house.picture_data;
     const filename = uri.substring(uri.lastIndexOf("/") + 1);
@@ -113,7 +231,7 @@ export default function AddHouse() {
         });
     });
   };
-  uriToBlob = (uri) => {
+ const uriToBlob = (uri) => {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.onload = function () {
@@ -142,9 +260,9 @@ export default function AddHouse() {
         picture: house.picture,
         status: house.status,
       })
-      .then(async () => {
+      .then(async (res) => {
         console.log("add success");
-
+setHouse({...house,id:res.id})
         Toast.show({
           type: "success",
           position: "bottom",
@@ -178,9 +296,9 @@ export default function AddHouse() {
   };
 
   return (
-    <>
+    <View style={styles.full_page}>
       <ScrollView style={styles.scroll_view}>
-        <View style={styles.main_container}>
+     {page==0?(   <View style={styles.main_container}>
           <View style={styles.row_field}>
             <TextInput
               placeholder="Titre"
@@ -237,7 +355,7 @@ export default function AddHouse() {
               {houseDataError.picture}
             </Text>
           </View>
-          <TapGestureHandler onHandlerStateChange={verifData}>
+          <TouchableOpacity onPress={verifData}>
             <View style={styles.button}>
               <Text
                 style={{ fontSize: 15, fontWeight: "bold", color: "white" }}
@@ -245,17 +363,88 @@ export default function AddHouse() {
                 Ajouter
               </Text>
             </View>
-          </TapGestureHandler>
+          </TouchableOpacity>
         </View>
+     ):<View style={styles.main_container}>
+         <TouchableOpacity onPress={()=>{addHouseItem()}}>
+     <View style={styles.button}>
+       <Text
+         style={{ fontSize: 15, fontWeight: "bold", color: "white" }}
+       >
+         Ajouter une option
+       </Text>
+     </View>
+   </TouchableOpacity>
+
+     {
+       houseItems.map((item,index)=>{
+         return(
+           <View key={index} style={styles.house_item_container}>
+             <TextInput value={item.title} style={styles.text_input} onChangeText={(v)=>{onChangeTextHouseItem(index,"title",v)}}></TextInput>
+           <TextInput value={item.description}  style={styles.text_input} onChangeText={(v)=>{onChangeTextHouseItem(index,"description",v)}}/>
+           <TouchableOpacity style={styles.button} onPress={()=>{pickImageItem(index)}} >
+         <Text style={styles.butoon_page_text}>sélectionner une image</Text>
+       </TouchableOpacity>
+           </View>
+         )
+       })
+     }
+     </View>}
       </ScrollView>
+     <View style={styles.next_space}>
+      {page==1? <TouchableOpacity style={styles.button_page} onPress={()=>{ if(page==0){setPage(1)}else{setPage(0)}}}>
+         <Text style={styles.butoon_page_text}>précédent</Text>
+       </TouchableOpacity>:null}
+       <TouchableOpacity style={styles.button_page} onPress={()=>{ if(page==0){setPage(1)}else{saveAllData()}}}>
+         <Text style={styles.butoon_page_text}>{page==1?"terminer":"suivant"}</Text>
+       </TouchableOpacity>
+     </View>
       <Toast ref={(ref) => Toast.setRef(ref)} />
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  house_item_container:{
+    backgroundColor:"white",
+    height:SCREEN_HEIGHT*0.3,
+    width:"96%",
+    marginHorizontal:"2%",
+
+    marginVertical:5,
+    elevation:5,
+   
+  },
+  button_page:{
+     marginVertical:5,
+    height:50,
+    marginHorizontal:"5%",
+    borderRadius:20,
+    width:"40%",
+    display:"flex",
+    flexDirection:"column",
+    justifyContent:"center",
+    alignItems:"center",
+    backgroundColor:MAIN_BLUE
+   },
+  
+  butoon_page_text:{
+    color:white,
+    fontWeight:"700",
+    fontSize:RFPercentage(2.1)  },
+  full_page:{
+flex:1
+  },
+  next_space:{
+  flexDirection:"row",
+  justifyContent:"flex-end",
+  
+    height:SCREEN_HEIGHT*0.1,
+    width:SCREEN_WIDTH
+  },
   scroll_view: {
-    flex: 1,
+    width:SCREEN_WIDTH,
+    height:SCREEN_HEIGHT*0.9
   },
   main_container: {
     flex: 1,
