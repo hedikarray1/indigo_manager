@@ -23,7 +23,9 @@ function EmployesList() {
   useEffect(() => {
    getEmployes();
   }, []);
-
+  useEffect(() => {
+   
+   }, [employesList]);
 
 const getEmployes=()=>{
   let employes=[];
@@ -35,8 +37,9 @@ firestoreUser.where("role","!=","admin").get().then((snapshot)=>{
     snapshot.forEach((el)=>{
       employes.push({id:el.id,firstname:el.data().firstname,lastname:el.data().lastname,email:el.data().email,role:el.data().role,picture:el.data().picture})
     
-    setEmployesList(employes)
     })
+    setEmployesList(employes)
+
   }
 })
 }
@@ -88,7 +91,7 @@ firestoreUser.where("role","!=","admin").get().then((snapshot)=>{
                     color: item.role == "admin" ? bleu : red,
                   }}
                 >
-                  {item.role == "admin" ? "Employé" : "Livreur"}
+                  {item.role == "employee" ? "Employé" : ""}
                 </Text>
               </View>
               <Image

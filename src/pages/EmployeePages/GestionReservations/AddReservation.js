@@ -18,10 +18,12 @@ import AsyncStorage from '@react-native-community/async-storage';
 function AddReservation() {
     const [houses, sethouses] = useState([]);
     const [housesItems, sethousesItems] = useState([]);
+    const [value, setValue] = useState(null);
+
     const [reservation,setReservation]=useState({customer_firstname:"",customer_lastname:"",customer_email:"",employe_id:"",income_date:"",outcome_date:"",checkin_date:"",checkout_date:"",checkin_signature:"",checkout_signature:"",house_id:""})
     const firestoreHouse = db.collection(DataBaseRef.house);
     const firebaseStoreHouse = firestorage.ref(FirebaseStorage.house);
-
+    const [open, setOpen] = useState(false);
     const firestoreReservation = db.collection(DataBaseRef.reservation);
     const [signature_canva_path,setSignature_canva_path]=useState("");
     const [showIncome,setShowIncome]=useState(false);
@@ -187,13 +189,16 @@ const uploadPicture=(name,path,type)=>{
            <View>
                <Text>Sélectionner la maison</Text>
                <DropDownPicker
-              
+              open={open}
+              setOpen={setOpen}
+              value={value}
                items={housesItems} 
                placeholder="selectionner une maison" 
-               onChangeValue={(val)=>{let old_reservation=reservation; old_reservation.house_id=val;setReservation(old_reservation)}} 
+               setValue={setValue} 
                searchable={true} 
+               onChangeValue={(val)=>{let old_reservation=reservation; old_reservation.house_id=val;setReservation(old_reservation)}}
               
-               containerStyle={{height:300}}  ></DropDownPicker>
+               containerStyle={{marginVertical:10}}  ></DropDownPicker>
           <Text>Nom du client</Text>
           <TextInput placeholder="nom du client"></TextInput>
           <Text>Prenom du client</Text>

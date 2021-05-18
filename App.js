@@ -10,12 +10,12 @@ import Login from "./src/pages/CommunPages/Login";
 import AddReservation from "./src/pages/EmployeePages/GestionReservations/AddReservation";
 
 export default function App() {
- /* return (
+  return (
     <NavigationContainer>
       <AppStack></AppStack>
     </NavigationContainer>
-  );*/
-  return(
+  );
+ /* return(
     <AddReservation></AddReservation>
-  )
+  )*/
 }
