@@ -3,12 +3,15 @@ import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, Touc
 import { white ,MAIN_BLUE, black} from '../../config/Colors';
 import IconAntDesign from "react-native-vector-icons/AntDesign";
 import { RFPercentage } from "react-native-responsive-fontsize";
-import { load } from 'npm';
 import AsyncStorage from '@react-native-community/async-storage';
-import { CURRENT_USER_KEY } from '../../config/Constant';
+import { CURRENT_USER_KEY, DataBaseRef, FirebaseStorage } from '../../config/Constant';
 import { TextInput } from 'react-native-gesture-handler';
+import { db, firestorage } from '../../config/serverConfig';
 const { height, width } = Dimensions.get("window");
-function Profile() {
+const firestoreUser = db.collection(DataBaseRef.user);
+const firebaseStoreUser = firestorage.ref(FirebaseStorage.user);
+
+function Profile(props) {
 
 
 
@@ -19,10 +22,11 @@ function Profile() {
     email: "hedi.karray@esprit.tn",
     role: "employee",
   });
-
+const [changePasswordForm,setChangePasswordForm]=useState(false);
+const [PasswordFormData,setPasswordFormData]=useState({old_password:"",new_password:"",confirm_password:"",password_form_error:""});
   useEffect(() => {
    loadFromStorage();
-  }, [input])
+  }, [])
 
   const loadFromStorage= async ()=>{
       const data=await AsyncStorage.getItem(CURRENT_USER_KEY);
@@ -33,11 +37,52 @@ function Profile() {
   }
    const logout=async ()=>{
        AsyncStorage.clear();
-       this.props.navigation.navigate("LoginScreen")
+       props.navigation.navigate("LoginScreen")
+   }
+
+   const UpdatePassword=()=>{
+       const old_state=PasswordFormData;
+       old_state.password_form_error=""
+     
+       firestoreUser.doc(currentUser.id).get().then((snapshot1)=>{
+           if(snapshot1.data().password===PasswordFormData.old_password)
+           {
+            if(PasswordFormData.new_password===PasswordFormData.confirm_password && PasswordFormData.confirm_password.length>5 ){
+
+                firestoreUser.doc(currentUser.id).update({password:PasswordFormData.new_password}).then((snapshot)=>{
+                    console.log("update success");
+                })
+            }else{
+                if(PasswordFormData.confirm_password.length<=5 || PasswordFormData.new_password.length<=5 ){
+                    old_state.password_form_error="les mots de passes doivent contenir au moins 6 caractères"
+                    console.log("les mots de passes doivent contenir au moins 6 caractères")
+
+                }else{
+                    old_state.password_form_error="le nouveau mot de passe ne convient pas au mot de passe de confirmation"
+console.log("le nouveau mot de passe ne convient pas au mot de passe de confirmation")
+                }
+            }
+           }else{
+            console.log("old password doesn't match the real password ");
+                old_state.password_form_error="le mot de passe actuel est inccorect"
+          
+           }
+       }).catch((e)=>{
+           console.log("get user by id error")
+       })
+
+       setPasswordFormData({...old_state})
+   }
+
+   const onchangePasswordForm=(attribute,value)=>{
+let old_state=PasswordFormData;
+old_state[attribute]=value;
+setChangePasswordForm({...old_state});
+console.log("apres modification des champs",changePasswordForm)
    }
     return (
-    
-         <View style={styles.main_container}>
+    <ScrollView>
+             <View style={styles.main_container}>
              <Image style={styles.static_picture_cover} source={require("../../assets/images/login_cover.jpg")} />
 
              
@@ -63,18 +108,19 @@ function Profile() {
           
           <View style={styles.user_actions_container}>
          
-             <TouchableOpacity style={styles.password_edit_button}>
+             <TouchableOpacity onPress={()=>{setChangePasswordForm(!changePasswordForm)}} style={styles.password_edit_button}>
                  <Text style={styles.password_edit_button_text}>Changer le mot de passe</Text>
              </TouchableOpacity>
-             <View style={styles.user_password_container}> 
-             <TextInput placeholder="Mot de passe actuel" />
-             <TextInput placeholder="Nouveau mot de passe" />
-             <TextInput placeholder="Confimer le mot de passe" />
-             <TouchableOpacity style={styles.password_edit_button}>
-                 <Text>Modifier</Text>
+            {changePasswordForm? ( <View style={styles.user_password_container}> 
+             <TextInput onChangeText={(e)=>{ onchangePasswordForm("old_password",e) }} placeholder="Mot de passe actuel" />
+             <TextInput  onChangeText={(e)=>{ onchangePasswordForm("new_password",e) }} placeholder="Nouveau mot de passe" />
+             <TextInput  onChangeText={(e)=>{ onchangePasswordForm("confirm_password",e) }} placeholder="Confimer le mot de passe" />
+             <Text >{PasswordFormData.password_form_error}</Text>
+             <TouchableOpacity onPress={()=>{UpdatePassword()}} style={styles.password_edit_button}>
+                 <Text style={styles.password_edit_button_text}>Modifier</Text>
              </TouchableOpacity>
 
-             </View>
+             </View>):null}
           
              <TouchableOpacity onPress={()=>{logout()}} style={styles.user_logout_button}>
                  <Text style={styles.password_edit_button_text}>Déconnexion</Text>
@@ -84,7 +130,9 @@ function Profile() {
             
 
          </View>
-    )
+   
+    </ScrollView>
+     )
 }
 
 const styles=StyleSheet.create(

@@ -10,7 +10,7 @@ import {
 
 import Animated, { Easing } from "react-native-reanimated";
 import { TapGestureHandler, State } from "react-native-gesture-handler";
-import { db } from "../../config/serverConfig";
+import { db, firestorage } from "../../config/serverConfig";
 import { CURRENT_USER_KEY, DataBaseRef, FirebaseStorage,CURRENT_USER_CREDENTIALS_KEY } from "../../config/Constant";
 import AsyncStorage from "@react-native-community/async-storage";
 const { width, height } = Dimensions.get("window");
@@ -185,7 +185,7 @@ this.props.navigation.navigate("AdminBottomTabNavigator")
 }
 
 
-async saveUserToStorage(){
+async saveUserToStorage(data){
   const user_data=JSON.stringify(data.user_info);
   const credentials=JSON.stringify(data.credentials);
   await AsyncStorage.setItem(CURRENT_USER_KEY,user_data);
@@ -197,7 +197,7 @@ async saveUserToStorage(){
   onChange(attribute,value){
     const old_state=this.state;
     old_state[attribute]=value;
-    this.setState(state,()=>{
+    this.setState(old_state,()=>{
       console.log(attribute,"changed to ",value)
     })
 
@@ -223,7 +223,7 @@ async saveUserToStorage(){
           />
         </Animated.View>
         <View style={{ height: height / 3, justifyContent: "center" }}>
-          <TapGestureHandler enabled={!this.state.loading}  onHandlerStateChange={this.onStateChange}>
+          <TapGestureHandler enabled={true}  onHandlerStateChange={this.onStateChange}>
             <Animated.View
               style={{
                 ...styles.button,

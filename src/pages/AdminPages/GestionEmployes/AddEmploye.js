@@ -5,8 +5,14 @@ import { Card } from "react-native-elements";
 import { TapGestureHandler } from "react-native-gesture-handler";
 import { TextInput } from "react-native-paper";
 import { BORDER_INPUTS, MAIN_BLUE } from "../../../config/Colors";
+import { DataBaseRef, FirebaseStorage } from "../../../config/Constant";
+import { db, firestorage } from "../../../config/serverConfig";
 
-function AddEmploye() {
+const firestoreUser = db.collection(DataBaseRef.user);
+const firebaseStoreUser = firestorage.ref(FirebaseStorage.user);
+
+
+function AddEmploye(props) {
   const [employe, setEmploye] = useState({
     firstname: "",
     lastname: "",
@@ -77,7 +83,18 @@ function AddEmploye() {
   };
 
   const addEmployee = () => {
-    console.log("employee is:", employe);
+   firestoreUser.where("email","==",employe.email).get().then((snapshot)=>{
+     if(snapshot.empty){
+      firestoreUser.add({firstname:employe.firstname,lastname:employe.lastname,email:employe.email,password:employe.password,role:employe.role,picture:"static_picture.png"}).then((result)=>{
+        console.log("employee is:", employe);
+        props.navigation.navigate("EmployesList")
+      }).catch((e)=>{
+        console.log("error adding employee",e);
+      })
+     }else{
+       console.log("email exists , error adding employee")
+     }
+   })
   };
 
   return (

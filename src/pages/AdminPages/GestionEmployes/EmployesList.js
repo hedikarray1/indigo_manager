@@ -8,45 +8,38 @@ import { Card } from "react-native-elements";
 import { Swipeable, TouchableOpacity } from "react-native-gesture-handler";
 import IconAntDesign from "react-native-vector-icons/AntDesign";
 import { black, bleu, or, red } from '../../../config/Colors';
+import { DataBaseRef, FirebaseStorage } from "../../../config/Constant";
+import { db, firestorage } from "../../../config/serverConfig";
 
 const { width, height } = Dimensions.get("window");
 
-const employesStaticList = [
-  {
-    id: 1,
-    firstname: "hedi",
-    lastname: "karray",
-    email: "hedi.karray@esprit.tn",
-    role: "employee",
-  },
-  {
-    id: 2,
-    firstname: "hedi",
-    lastname: "karray",
-    email: "hedi.karray@esprit.tn",
-    role: "employee",
-  },
-  {
-    id: 3,
-    firstname: "hedi",
-    lastname: "karray",
-    email: "hedi.karray@esprit.tn",
-    role: "employee",
-  },
-  {
-    id: 4,
-    firstname: "hedi",
-    lastname: "karray",
-    email: "hedi.karray@esprit.tn",
-    role: "employee",
-  },
-];
+const firestoreUser = db.collection(DataBaseRef.user);
+const firebaseStoreUser = firestorage.ref(FirebaseStorage.user);
+
+
 
 function EmployesList() {
   const [employesList, setEmployesList] = useState([]);
   useEffect(() => {
-    setEmployesList(employesStaticList);
+   getEmployes();
   }, []);
+
+
+const getEmployes=()=>{
+  let employes=[];
+firestoreUser.where("role","!=","admin").get().then((snapshot)=>{
+  if(snapshot.empty){
+    console.log("no data found");
+  }else{
+    
+    snapshot.forEach((el)=>{
+      employes.push({id:el.id,firstname:el.data().firstname,lastname:el.data().lastname,email:el.data().email,role:el.data().role,picture:el.data().picture})
+    
+    setEmployesList(employes)
+    })
+  }
+})
+}
 
   const renderDeleteButton = (index, id) => {
     return [

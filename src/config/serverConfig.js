@@ -5,4 +5,5 @@ const db = firestore();
 
 const firestorage = storage();
 
+
 export { firestorage, db };
