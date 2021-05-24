@@ -5,11 +5,21 @@ import { Image } from "react-native";
 import { Platform } from "react-native";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Card } from "react-native-elements";
-import { Swipeable, TouchableOpacity } from "react-native-gesture-handler";
+import { Swipeable } from "react-native-gesture-handler";
+import { RFPercentage } from "react-native-responsive-fontsize";
 import IconAntDesign from "react-native-vector-icons/AntDesign";
-import { black, bleu, or, red } from '../../../config/Colors';
+import { black, bleu, MAIN_BLUE, or, red, white } from '../../../config/Colors';
 import { DataBaseRef, FirebaseStorage, USER_PICTURE_URL } from "../../../config/Constant";
 import { db, firestorage } from "../../../config/serverConfig";
+import IconFontAwesome from "react-native-vector-icons/FontAwesome";
+import { TouchableOpacity } from "react-native";
+import Dialog, {
+  DialogContent,
+  DialogFooter,
+  DialogButton,
+  SlideAnimation,
+  DialogTitle,
+} from "react-native-popup-dialog";
 
 const { width, height } = Dimensions.get("window");
 
@@ -20,105 +30,147 @@ const firebaseStoreUser = firestorage.ref(FirebaseStorage.user);
 
 function EmployesList() {
   const [employesList, setEmployesList] = useState([]);
+  const [dialogDeleteVisiblilite, setDialogDeleteVisiblilite] = useState(false);
+const [selectedItem,setSelectedItem]=useState(0);
   useEffect(() => {
-   getEmployes();
+    getEmployes();
   }, []);
   useEffect(() => {
-   
-   }, [employesList]);
 
-const getEmployes=()=>{
-  let employes=[];
-firestoreUser.where("role","!=","admin").get().then((snapshot)=>{
-  if(snapshot.empty){
-    console.log("no data found");
-  }else{
-    
-    snapshot.forEach((el)=>{
-      employes.push({id:el.id,firstname:el.data().firstname,lastname:el.data().lastname,email:el.data().email,role:el.data().role,picture:el.data().picture})
-    
+  }, [employesList]);
+
+  const getEmployes = () => {
+    let employes = [];
+    firestoreUser.where("role", "!=", "admin").get().then((snapshot) => {
+      if (snapshot.empty) {
+        console.log("no data found");
+      } else {
+
+        snapshot.forEach((el) => {
+          employes.push({ id: el.id, firstname: el.data().firstname, lastname: el.data().lastname, email: el.data().email, role: el.data().role, picture: el.data().picture })
+
+        })
+        setEmployesList(employes)
+
+      }
     })
-    setEmployesList(employes)
-
   }
-})
+
+  const removeItem = () => {
+ 
+    
+  firestoreUser.doc(selectedItem).delete().then((result)=>{
+    const index = employesList.findIndex(employe => employe.id === selectedItem); //use id instead of index
+    if (index > -1) { //make sure you found it
+      let oldState=employesList;
+      oldState.splice(index,1);
+     setEmployesList(oldState);
+     setDialogDeleteVisiblilite(false);
+    }   
+  }).catch(e=>{
+    console.log("error when delete user",e)
+  })
 }
 
-  const renderDeleteButton = (index, id) => {
-    return [
-      <View style={styles.container_swipe_btn}>
-        <TouchableOpacity
-          style={styles.btn_icon}
-          onPress={() => {
-            //deleteUser(id, index)
-          }}
-        >
-          <IconAntDesign
-            name="delete"
-            color="#135289"
-            size={30}
-            adjustsFontSizeToFit={true}
-          />
-        </TouchableOpacity>
-      </View>,
-    ];
-  };
-
   return (
-    <ScrollView>
-      <View>
+    <ScrollView style={styles.ScrollView}>
+      <View style={styles.main_container}>
         {employesList.map((item, index) => (
-          <Swipeable
-            rightButtonWidth={112}
-            rightButtons={renderDeleteButton(index, item.id)}
-          >
-            <View style={styles.item_container} key={item.id}>
-              <View
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  right: 0,
-                  paddingHorizontal: 15,
-                  paddingVertical: 10,
-                  alignItems: "center",
-                  borderTopRightRadius: 10,
-                }}
-              >
-                <Text
-                  style={{
-                    fontFamily: "Montserrat-SemiBold",
-                    // fontSize: RFPercentage(2),
-                    color: item.role == "admin" ? bleu : red,
-                  }}
-                >
-                  {item.role == "employee" ? "Employé" : ""}
-                </Text>
-              </View>
-              <Image
-                style={styles.picture}
-                 source={{ uri: USER_PICTURE_URL+ item.picture }}
-              ></Image>
-              <View style={styles.user_data}>
-                <Text style={styles.txt_username}>
-                  {" "}
-                  {item.firstname + " " + item.lastname}
-                </Text>
-                <Text style={styles.txt_email}> {item.email}</Text>
-                <Text style={styles.txt_phone}> {item.phone}</Text>
-              </View>
+
+          <View style={styles.item_container} key={item.id}>
+            <TouchableOpacity
+              style={{
+                position: "absolute",
+                right: 15,
+                alignSelf:"center",
+                alignItems: "center",
+              }}
+              onPress={()=>{ setSelectedItem(item.id);setDialogDeleteVisiblilite(true)}}
+            >
+            
+              <IconFontAwesome
+               size={20}
+            
+               color="red"
+               name="remove"
+              />
+               
+            
+            </TouchableOpacity>
+            <Image
+              style={styles.picture}
+              source={{ uri: USER_PICTURE_URL + item.picture }}
+            ></Image>
+            <View style={styles.user_data}>
+              <Text style={styles.txt_username}>
+                {" "}
+                {item.firstname + " " + item.lastname}
+              </Text>
+              <Text style={styles.txt_email}> {item.email}</Text>
             </View>
-          </Swipeable>
+
+          
+
+          </View>
+
         ))}
+
+<Dialog
+  visible={dialogDeleteVisiblilite}
+  dialogStyle={{
+    borderRadius: 20,
+    marginHorizontal: 30,
+  }}
+  dialogTitle={
+    <DialogTitle
+      textStyle={styles.dialog_title_txt}
+      title="Voulez vous supprimer cet employé ? "
+    />
+  }
+  dialogAnimation={
+    new SlideAnimation({
+      slideFrom: "bottom",
+    })
+  }
+  onTouchOutside={() => {
+    setDialogDeleteVisiblilite(false)
+  }}
+  footer={
+    <DialogFooter>
+      <DialogButton
+        text="NON"
+        textStyle={styles.dialog_btn_annuler}
+        onPress={() => {
+          setDialogDeleteVisiblilite(false)
+        }}
+      />
+      <DialogButton
+        text="OUI"
+        textStyle={styles.dialog_btn_ajouter}
+        onPress={() => {
+         removeItem();
+        }}
+      />
+    </DialogFooter>
+  }
+></Dialog>
+
+
+
       </View>
+
+     
+     
+
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   txt_email: {
-    fontFamily: "Montserrat-SemiBold",
-    //  fontSize: RFPercentage(1.8),
-    color: "gray",
+    fontSize: RFPercentage(2.4), 
+    fontFamily:"ChampagneLimousines" ,
+        color: "gray",
   },
 
   txt_phone: {
@@ -127,15 +179,15 @@ const styles = StyleSheet.create({
     color: "gray",
   },
   txt_username: {
-    fontFamily: "Montserrat-SemiBold",
-    // fontSize: RFPercentage(2),
+   fontSize: RFPercentage(2.8), 
+   fontFamily:"ChampagneLimousines-Bold" ,
     color: black,
   },
   picture: {
-    width: height / 7.5,
-    height: height / 7.5,
+    width: height / 12,
+    height: height / 12,
     borderRadius: 100,
-    borderColor: or,
+    borderColor: MAIN_BLUE,
     borderWidth: 1,
   },
   btn_delete: {
@@ -150,7 +202,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     marginLeft: 8,
   },
-  btn_delete: {},
+
   btn_add: {
     backgroundColor: "#940920",
     width: 100,
@@ -166,31 +218,37 @@ const styles = StyleSheet.create({
     color: "white",
     fontFamily: "Monserrat-SemiBold",
   },
+  main_container:{
+    flex:1,
+    backgroundColor:white
+  },
   item_container: {
-    width: "100%",
-    height: height / 6,
-    backgroundColor: "#ffffff",
+    width: "98%",
+    height: height / 9,
+    backgroundColor: white,
     display: "flex",
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
     padding: 10,
     elevation: 5,
+    marginHorizontal:"1%",
     borderRadius: 10,
     marginVertical: 7,
   },
   ScrollView: {
     display: "flex",
-    flexDirection: "column",
+    flex:1,
+    backgroundColor: white,
+
     padding: 8,
-    justifyContent: "space-evenly",
-    marginBottom: 70,
+    
   },
   user_data: {
     display: "flex",
+    height:"90%",
     flexDirection: "column",
-    height: "90%",
-    justifyContent: "space-evenly",
+    justifyContent: "center",
     marginLeft: 15,
   },
   picture_delete: {
@@ -222,5 +280,22 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     paddingLeft: 20,
   },
+ //dialog
+ dialog_title_txt: {
+  fontFamily: "Montserrat-Regular",
+  fontSize: RFPercentage(2.5),
+  color: "black",
+},
+dialog_btn_annuler: {
+  fontFamily: "Montserrat-SemiBold",
+  fontSize: RFPercentage(2),
+  color: "grey",
+},
+dialog_btn_ajouter: {
+  fontFamily: "Montserrat-SemiBold",
+  fontSize: RFPercentage(2),
+  color: MAIN_BLUE,
+},
+
 });
 export default EmployesList;

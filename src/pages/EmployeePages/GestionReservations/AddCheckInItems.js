@@ -167,8 +167,8 @@ const saveAndClose=()=>{
     }
 
     return (
-        <ScrollView>
-            <View>
+        <ScrollView style={styles.scroll_view}>
+            <View style={styles.main_container}>
                 {
                     checkItems.map((item, index) => (
                         <View style={styles.check_item_container}>
@@ -179,8 +179,8 @@ const saveAndClose=()=>{
 </View>
 <View style={styles.check_item_action_container}>
 <Switch
-        trackColor={{ false: "#767577", true: "#81b0ff" }}
-        thumbColor={item.state ? "#f5dd4b" : "#f4f3f4"}
+        trackColor={{ false: "#fa232b", true: "#0e8500" }}
+        thumbColor={item.state ? "#f4f3f4" : "#f4f3f4"}
         ios_backgroundColor="#3e3e3e"
         onValueChange={(val)=>{onChangeCheckItem(index,val)}}
         value={item.state}
@@ -199,8 +199,8 @@ const saveAndClose=()=>{
                     ))
                 }
 
-                <TouchableOpacity onPress={()=>{saveAndClose();}}>
-                    <Text>Valider</Text>
+                <TouchableOpacity style={styles.button} onPress={()=>{saveAndClose();}}>
+                    <Text style={styles.button_txt}>Valider</Text>
                 </TouchableOpacity>
             </View>
         </ScrollView>
@@ -209,12 +209,23 @@ const saveAndClose=()=>{
 
 
 const styles = StyleSheet.create({
+  scroll_view:{
+    flex:1,
+
+    
+  },
+  main_container:{
+    flex:1,
+  
+    alignItems:"center"
+  },
     check_item_container:{
         backgroundColor:white,
         elevation:2,
         width:SCREEN_WIDTH*0.96,
-        height:SCREEN_HEIGHT*0.3,
+        height:SCREEN_HEIGHT*0.12,
         display:"flex",
+        padding:5,
         flexDirection:"row",
         justifyContent:"space-between",
         alignItems:"center",
@@ -222,9 +233,9 @@ const styles = StyleSheet.create({
         
     },
     check_item_picture:{
-borderRadius:SCREEN_WIDTH*0.24,
-width:SCREEN_WIDTH*0.24,
-height:SCREEN_WIDTH*0.24,
+borderRadius:10,
+width:SCREEN_WIDTH*0.15,
+height:SCREEN_WIDTH*0.15,
 borderWidth:1,
 borderColor:MAIN_BLUE
     },
@@ -243,7 +254,23 @@ width:"50%"
         alignItems:"center",
         height:"100%",
         width:"25%"
-    }
+    },
+    button: {
+      bottom:0,
+      backgroundColor: MAIN_BLUE,
+      height: 50,
+      width:"95%",
+      marginHorizontal: 30,
+      borderRadius: 35,
+      alignItems: "center",
+      justifyContent: "center",
+      marginVertical: 5,
+      shadowOffset: { width: 2, height: 2 },
+      shadowColor: "black",
+      shadowOpacity: 0.2,
+      elevation: 2,
+    },
+    button_txt:{ fontSize: 15, fontWeight: "bold", color: "white" },
 });
 
 export default AddCheckInItems

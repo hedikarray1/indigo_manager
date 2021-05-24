@@ -10,6 +10,8 @@ import LinearGradient from 'react-native-linear-gradient' // import LinearGradie
 import { white } from '../../../config/Colors';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import IconAntDesign from "react-native-vector-icons/AntDesign";
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Fontisto from "react-native-vector-icons/Fontisto"
 import FontAwesome from "react-native-vector-icons/FontAwesome"
@@ -69,7 +71,7 @@ function ReservationList(props) {
 
                             <Text style={styles.customer_data}> <IconAntDesign name="user" size={20} color="white" />  {item.customer_firstname +" "+ item.customer_lastname} </Text>
                             <Text style={styles.customer_data}> <Fontisto name="email" size={20} color="white" />  {item.customer_email} </Text>
-                            <Text style={styles.customer_data}> <Fontisto name="email" size={20} color="white" />  {item.customer_email} </Text>
+                            <Text style={styles.customer_data}> <Ionicons name="clipboard-outline" size={20} color="white" />  {item.employe_firstname} {item.employe_lastname} </Text>
 
                             <View style={styles.date_container}>
 

@@ -74,8 +74,8 @@ this.state={
   load_from_storage:false,
   loading:true,
   login_result:true,
-  email:"",
-  password:""
+  email:"hedi.karray@esprit.tn",
+  password:"123456"
 }
 
     this.buttonOpacity = new Value(1);
@@ -260,10 +260,12 @@ async saveUserToStorage(data){
             </TapGestureHandler>
             <TextInput
               placeholder="nom d'utilisateur"
+              value={this.state.email}
               style={styles.text_input}
               onChangeText={(e)=>{this.onChange("email",e)}}
             />
             <TextInput placeholder="mot de passe" style={styles.text_input}
+             value={this.state.password}
               onChangeText={(e)=>{this.onChange("password",e)}}
             />
             <TapGestureHandler

@@ -6,7 +6,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { Card } from "react-native-elements";
 import { TapGestureHandler } from "react-native-gesture-handler";
 import { TextInput } from "react-native-paper";
-import { BORDER_INPUTS, MAIN_BLUE } from "../../../config/Colors";
+import { BORDER_INPUTS, MAIN_BLUE, white } from "../../../config/Colors";
 import { ImageRef } from "../../../config/ImageRef";
 import { db, firestorage } from "../../../config/serverConfig";
 import * as RNFS from 'react-native-fs';
@@ -49,10 +49,13 @@ function AddEmploye(props) {
   const onChangeText = (field, value) => {
     if (field === "repeatPassword") {
       setRepeatPassword(value);
+      setEmployeDataError({...employeDataError,["repeatpassword"]:""})
+
     } else {
       let myoldState = employe;
       myoldState[field] = value;
       setEmploye({ ...myoldState });
+      setEmployeDataError({...employeDataError,[field]:""})
     }
   };
 
@@ -103,22 +106,22 @@ function AddEmploye(props) {
     ImagePicker.openPicker({
       width: 500,
       includeBase64:true,
-      height: 400,
+      height: 500,
       //cropping: true
     }).then((image) => {
       console.log(image);
       ImagePicker.openCropper({
         path: image.path,
         width: 500,
-        height: 400,
+        height: 500,
         includeBase64:true
       }).then((image1) => {
         console.log(image1);
         
         let myoldState = employe;
-        employe.picture = image1.data;
-        employe.picture_path=image1.path;
-       // setHouse({ ...myoldState });
+        myoldState.picture = image1.data;
+        myoldState.picture_path=image1.path;
+        setEmploye({ ...myoldState });
 
        // console.log("setted picture data", house.picture_data);
       });
@@ -188,12 +191,15 @@ function AddEmploye(props) {
   return (
     <ScrollView style={styles.scroll_view}>
       <View style={styles.main_container}>
-<TouchableOpacity  style={styles.user_picture} onPress={()=>{pickImage()}}>
+<TouchableOpacity  onPress={()=>{pickImage()}}>
   <Image  style={styles.user_picture} source={ employe.picture_path!=""? { uri: employe.picture_path }
                       : ImageRef.house_add_image} ></Image>
 </TouchableOpacity>
-
+<View style={styles.row_field}>
         <TextInput
+             theme={{colors:{error:"red",background:"white",primary:MAIN_BLUE}}}
+             error={employeDataError.lastname!=""}
+                underlineColor="transparent"  
           placeholder="Nom"
           value={employe.lastname}
           style={styles.text_input}
@@ -204,9 +210,12 @@ function AddEmploye(props) {
         <Text style={styles.txt_error_message}>
           {employeDataError.lastname}
         </Text>
-
+</View>
         <View style={styles.row_field}>
           <TextInput
+             theme={{colors:{error:"red",background:"white",primary:MAIN_BLUE}}}
+             error={employeDataError.firstname!=""}
+                underlineColor="transparent" 
             placeholder="Prénom"
             value={employe.firstname}
             style={styles.text_input}
@@ -221,7 +230,10 @@ function AddEmploye(props) {
 
         <View style={styles.row_field}>
           <TextInput
-            placeholder="Email"
+  theme={{colors:{error:"red",background:"white",primary:MAIN_BLUE}}}
+  error={employeDataError.email!=""}
+     underlineColor="transparent"    
+              placeholder="Email"
             value={employe.email}
             style={styles.text_input}
             onChangeText={(e) => {
@@ -233,6 +245,9 @@ function AddEmploye(props) {
 
         <View style={styles.row_field}>
           <TextInput
+              theme={{colors:{error:"red",background:"white",primary:MAIN_BLUE}}}
+              error={employeDataError.password!=""}
+                 underlineColor="transparent" 
             placeholder="mot de passe"
             value={employe.password}
             style={styles.text_input}
@@ -247,6 +262,10 @@ function AddEmploye(props) {
 
         <View style={styles.row_field}>
           <TextInput
+          theme={{colors:{error:"red",background:"white",primary:MAIN_BLUE}}}
+          error={employeDataError.repeatpassword!=""}
+             underlineColor="transparent" 
+             
             placeholder="répéter le mot de passe"
             value={repeatPassword}
             style={styles.text_input}
@@ -258,13 +277,12 @@ function AddEmploye(props) {
             {employeDataError.repeatpassword}
           </Text>
         </View>
-        <TapGestureHandler onHandlerStateChange={verifData}>
-          <View style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={verifData}>
             <Text style={{ fontSize: 15, fontWeight: "bold", color: "white" }}>
               Ajouter
             </Text>
-          </View>
-        </TapGestureHandler>
+         
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -272,40 +290,51 @@ function AddEmploye(props) {
 
 const styles = StyleSheet.create({
   user_picture:{
+    marginVertical:15,
 width:SCREEN_WIDTH*0.3,
 height:SCREEN_WIDTH*0.3,
 borderRadius:SCREEN_WIDTH*0.3,
 borderColor:MAIN_BLUE,
 borderWidth:1.5
   },
+ 
   scroll_view: {
     flex: 1,
+    backgroundColor:white,
+
   },
   main_container: {
     flex: 1,
+    backgroundColor:white,
+    width:"100%",
     display: "flex",
+    alignItems:"center",
     justifyContent: "center",
+    flexDirection:"column",
     paddingHorizontal: 10,
     marginBottom: 80,
   },
   text_input: {
+    elevation:3,
     height: 50,
+    width:"100%",
     borderRadius: 10,
-    marginHorizontal: 30,
     marginVertical: 5,
-    borderWidth: 1,
+   // borderWidth: 1,
     paddingLeft: 15,
-    borderColor: BORDER_INPUTS,
+   // borderColor: BORDER_INPUTS,
   },
   txt_error_message: {
     color: "#b50d15",
   },
   row_field: {
-    marginVertical: 10,
+    width:"95%",
+   
   },
   button: {
     backgroundColor: MAIN_BLUE,
     height: 50,
+    width:"95%",
     marginHorizontal: 30,
     borderRadius: 35,
     alignItems: "center",

@@ -8,3 +8,4 @@ export const or = "#b59c60";
 export const or_transparent = "#b59c609c";
 export const or_menu = "#f3c975";
 export const red = "#b50d15";
+export const green="#008791";
