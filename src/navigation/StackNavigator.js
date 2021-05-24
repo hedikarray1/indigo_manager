@@ -13,6 +13,9 @@ import Profile from "../pages/CommunPages/Profile";
 import HousesList from "../pages/AdminPages/GestionHouses/HousesList";
 import AddHouse from "../pages/AdminPages/GestionHouses/AddHouse";
 import IconAntDesign from "react-native-vector-icons/AntDesign";
+import ReservationList from "../pages/EmployeePages/GestionReservations/ReservationList";
+import AddReservation from "../pages/EmployeePages/GestionReservations/AddReservation";
+import ReservationDetails from "../pages/EmployeePages/GestionReservations/ReservationDetails";
 
 const NavigationToAddHouse = (props) => {
   return (
@@ -46,6 +49,24 @@ const NavigationToAddEmplye = (props) => {
   );
 };
 
+
+const NavigationToAddReservation = (props) => {
+  return (
+    <View>
+      <TouchableOpacity
+        style={{ paddingRight: 10 }}
+        onPress={() => {
+          console.log("Add Reservation clicked");
+          props.navigationProps.navigate("AddReservationScreen");
+        }}
+      >
+        <IconAntDesign name="pluscircleo" color={MAIN_BLUE} size={25} />
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+
 // admin stack
 const StackAdmin = createStackNavigator();
 
@@ -73,6 +94,64 @@ function AdminStack({ navigation }) {
           },
         }}
       />
+ <StackAdmin.Screen
+        name="ReservationListScreen"
+        component={ReservationList}
+        options={{
+          title: "Liste des réservations", //Set Header Title
+          headerLeft: () => null,
+          headerRight: () => (
+            <NavigationToAddReservation navigationProps={navigation} />
+          ),
+          headerTitleAlign: "center",
+          headerStyle: {
+            backgroundColor: "white", //Set Header color
+          },
+          headerTintColor: MAIN_BLUE, //Set Header text color
+          headerTitleStyle: {
+            fontFamily: "Montserrat-SemiBold",
+            fontSize: RFPercentage(2.2),
+            textTransform: "uppercase",
+          },
+        }}
+      />
+
+<StackAdmin.Screen
+        name="AddReservationScreen"
+        component={AddReservation}
+        options={{
+          title: "ajouter une reservation", //Set Header Title
+          headerTitleAlign: "center",
+          headerStyle: {
+            backgroundColor: "white", //Set Header color
+          },
+          headerTintColor: MAIN_BLUE, //Set Header text color
+          headerTitleStyle: {
+            fontFamily: "Montserrat-SemiBold",
+            fontSize: RFPercentage(2.2),
+            textTransform: "uppercase",
+          },
+        }}
+      />
+
+<StackAdmin.Screen
+        name="ReservationDetailsScreen"
+        component={ReservationDetails}
+        options={{
+          title: "détails de la réservation", //Set Header Title
+          headerTitleAlign: "center",
+          headerStyle: {
+            backgroundColor: "white", //Set Header color
+          },
+          headerTintColor: MAIN_BLUE, //Set Header text color
+          headerTitleStyle: {
+            fontFamily: "Montserrat-SemiBold",
+            fontSize: RFPercentage(2.2),
+            textTransform: "uppercase",
+          },
+        }}
+      />
+
       <StackAdmin.Screen
         name="AddEmployeScreen"
         component={AddEmploye}

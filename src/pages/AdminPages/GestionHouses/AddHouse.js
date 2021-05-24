@@ -45,18 +45,14 @@ export default function AddHouse() {
     
   const onChangeTextHouseItem = (index,field, value) => {
     let myoldState = houseItems;
-  /*  let my_old_item=myoldState[index];
-    my_old_item[field]=value;
-    myoldState[index] = my_old_item;*/
-  /*myoldState.map((item,ind)=>{
-      ind==index?{...item,[field]:value}:item
-    });*/
+  
 
     setHouseItems((old)=>old.map((item,ind)=>{
      return  ind==index?{...item,[field]:value}:item
     })
   );
   };
+
 
   const uploadPicture=(name,data,type)=>{
     
@@ -65,8 +61,12 @@ export default function AddHouse() {
       form_data.append("name",name);
       form_data.append("type",type);
       let request = fetch(
-       "https://indigo-properties.com/indigo_manager/upload.php" ,
+        UPLOAD_ENDPOINT,
         {
+          headers:{
+            'Accept': 'application/json',
+            'Content-Type': 'multipart/form-data',
+        },
           method:"POST",
            body: form_data
          }
@@ -91,14 +91,6 @@ export default function AddHouse() {
     
  }
 
-  const saveAllData=async ()=>{
-   await verifData();
-houseItems.forEach((item,index)=>{
-let name=new Date().getTime()+"";
-uploadPicture(name,item.picture,"item")
-  firestoreHouseItem.add({title:item.title,description:item.description,picture:name+".png",house_id:house.id}).then((res)=>{console.log("item number",index,"added")})
-})
-  }
 
   const onChangeText = (field, value) => {
     let myoldState = house;
@@ -148,13 +140,23 @@ uploadPicture(name,item.picture,"item")
     })();
   };
 */
+
+
+
+ 
+
+
+
+
  const pickImage = async () => {
     let myoldState = house;
+    
     myoldState.picture_data = "value";
     setHouse({ ...myoldState });
 
     ImagePicker.openPicker({
       width: 500,
+      includeBase64:true,
       height: 400,
       //cropping: true
     }).then((image) => {
@@ -163,11 +165,13 @@ uploadPicture(name,item.picture,"item")
         path: image.path,
         width: 500,
         height: 400,
+        includeBase64:true
       }).then((image1) => {
         console.log(image1);
         
         let myoldState = house;
-        myoldState.picture_data = image1.path;
+        myoldState.picture_data = image1.data;
+        myoldState.picture_path = image1.path;
         setHouse({ ...myoldState });
 
         console.log("setted picture data", house.picture_data);
@@ -231,6 +235,8 @@ const  uploadImage = async () => {
         });
     });
   };
+
+
  const uriToBlob = (uri) => {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
@@ -252,31 +258,40 @@ const  uploadImage = async () => {
   };
 
   const addHouse = async () => {
-    await uploadImage();
+  //  await uploadImage();
+    let namepictureHouse =new Date().getTime()+"";
+    uploadPicture(namepictureHouse,house.picture_data,"house");
     firestoreHouse
       .add({
         title: house.title,
         description: house.description,
-        picture: house.picture,
+        picture: namepictureHouse+".png",
         status: house.status,
       })
       .then(async (res) => {
         console.log("add success");
 setHouse({...house,id:res.id})
-        Toast.show({
-          type: "success",
-          position: "bottom",
-          text1: "Succès ",
-          text2: "Maison ajouter avec succès.",
-          visibilityTime: 500,
-          autoHide: true,
-          onPress: () => {
-            Toast.hide();
-          },
-          onHide: () => {
-            this.props.navigation.goBack();
-          },
-        });
+houseItems.forEach((item,index)=>{
+  let name=new Date().getTime()+"";
+  uploadPicture(name,item.picture,"item")
+    firestoreHouseItem.add({title:item.title,description:item.description,picture:name+".png",house_id:res.id}).then((res)=>{
+      console.log("item number",index,"added")})
+      Toast.show({
+        type: "success",
+        position: "bottom",
+        text1: "Succès ",
+        text2: "Maison ajouter avec succès.",
+        visibilityTime: 500,
+        autoHide: true,
+        onPress: () => {
+          Toast.hide();
+        },
+        onHide: () => {
+          this.props.navigation.goBack();
+        },
+      });
+  })
+   
       })
       .catch((reason) => {
         console.log("error :", reason);
@@ -345,7 +360,7 @@ setHouse({...house,id:res.id})
                   }}
                   source={
                     house.picture_data !== ""
-                      ? { uri: house.picture_data }
+                      ? { uri: house.picture_path }
                       : ImageRef.house_add_image
                   }
                 ></Image>
@@ -355,15 +370,7 @@ setHouse({...house,id:res.id})
               {houseDataError.picture}
             </Text>
           </View>
-          <TouchableOpacity onPress={verifData}>
-            <View style={styles.button}>
-              <Text
-                style={{ fontSize: 15, fontWeight: "bold", color: "white" }}
-              >
-                Ajouter
-              </Text>
-            </View>
-          </TouchableOpacity>
+      
         </View>
      ):<View style={styles.main_container}>
          <TouchableOpacity onPress={()=>{addHouseItem()}}>
@@ -395,7 +402,7 @@ setHouse({...house,id:res.id})
       {page==1? <TouchableOpacity style={styles.button_page} onPress={()=>{ if(page==0){setPage(1)}else{setPage(0)}}}>
          <Text style={styles.butoon_page_text}>précédent</Text>
        </TouchableOpacity>:null}
-       <TouchableOpacity style={styles.button_page} onPress={()=>{ if(page==0){setPage(1)}else{saveAllData()}}}>
+       <TouchableOpacity style={styles.button_page} onPress={()=>{ if(page==0){setPage(1)}else{verifData()}}}>
          <Text style={styles.butoon_page_text}>{page==1?"terminer":"suivant"}</Text>
        </TouchableOpacity>
      </View>

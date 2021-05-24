@@ -8,7 +8,7 @@ import { Card } from "react-native-elements";
 import { Swipeable, TouchableOpacity } from "react-native-gesture-handler";
 import IconAntDesign from "react-native-vector-icons/AntDesign";
 import { black, bleu, or, red } from '../../../config/Colors';
-import { DataBaseRef, FirebaseStorage } from "../../../config/Constant";
+import { DataBaseRef, FirebaseStorage, USER_PICTURE_URL } from "../../../config/Constant";
 import { db, firestorage } from "../../../config/serverConfig";
 
 const { width, height } = Dimensions.get("window");
@@ -96,7 +96,7 @@ firestoreUser.where("role","!=","admin").get().then((snapshot)=>{
               </View>
               <Image
                 style={styles.picture}
-                // source={{ uri: item.picture }}
+                 source={{ uri: USER_PICTURE_URL+ item.picture }}
               ></Image>
               <View style={styles.user_data}>
                 <Text style={styles.txt_username}>

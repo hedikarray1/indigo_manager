@@ -11,11 +11,13 @@ import AddReservation from "./src/pages/EmployeePages/GestionReservations/AddRes
 
 export default function App() {
   return (
-    <NavigationContainer>
+   <NavigationContainer>
       <AppStack></AppStack>
     </NavigationContainer>
   );
- /* return(
+
+  
+  /*return(
     <AddReservation></AddReservation>
   )*/
 }

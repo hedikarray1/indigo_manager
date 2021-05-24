@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View, Image, Text } from "react-native";
 import {
   DataBaseRef,
   FirebaseStorage,
+  HOUSE_PICTURE_URL,
   SCREEN_HEIGHT,
   SCREEN_WIDTH,
 } from "../../../config/Constant";
@@ -26,18 +27,14 @@ export default function HousesList() {
           console.log("houses empty");
         }
         snapshot.forEach(async (val,index) => {
-          console.log("val :", val);
-          await firebaseStoreHouse
-            .child(val.data().picture)
-            .getDownloadURL()
-            .then((url) => {
+      
               hous.push({
                 id: val.id,
                 title: val.data().title,
                 description: val.data().description,
                 status: val.data().status,
                 picture: val.data().picture,
-                picture_url: url,
+               
               });
 
             /*  sethouses([...houses,{
@@ -51,10 +48,8 @@ export default function HousesList() {
               if(index>=snapshot.size-1){
                 sethouses(hous)
               }
-            })
-            .catch((reason) => {
-              console.log("erreur: ", reason);
-            });
+            
+          
         });
       
        // console.log("houses output", houses);
@@ -104,7 +99,7 @@ export default function HousesList() {
             <View style={styles.item_container} key={item.id}>
               <Image
                 style={styles.picture}
-                source={{ uri: item.picture_url }}
+                source={{ uri: HOUSE_PICTURE_URL+ item.picture }}
               ></Image>
               <View style={styles.user_data}>
                 <Text style={styles.txt_username}> {item.title}</Text>

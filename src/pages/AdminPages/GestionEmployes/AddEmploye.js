@@ -1,13 +1,25 @@
 import React, { useState } from "react";
+import { Image } from "react-native";
+import { TouchableOpacity } from "react-native";
 import { Text } from "react-native";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Card } from "react-native-elements";
 import { TapGestureHandler } from "react-native-gesture-handler";
 import { TextInput } from "react-native-paper";
 import { BORDER_INPUTS, MAIN_BLUE } from "../../../config/Colors";
-import { DataBaseRef, FirebaseStorage } from "../../../config/Constant";
+import { ImageRef } from "../../../config/ImageRef";
 import { db, firestorage } from "../../../config/serverConfig";
+import * as RNFS from 'react-native-fs';
 
+import {
+  UPLOAD_ENDPOINT,
+  SCREEN_WIDTH,
+  DataBaseRef,
+  FirebaseStorage,
+  SCREEN_HEIGHT,
+} from "../../../config/Constant";
+import Toast from "react-native-toast-message";
+import ImagePicker from "react-native-image-crop-picker";
 const firestoreUser = db.collection(DataBaseRef.user);
 const firebaseStoreUser = firestorage.ref(FirebaseStorage.user);
 
@@ -19,12 +31,16 @@ function AddEmploye(props) {
     email: "",
     role: "employee",
     password: "",
+    picture_path:"",
+    picture:"",
     state: 1,
   });
   const [employeDataError, setEmployeDataError] = useState({
     firstname: "",
     lastname: "",
     email: "",
+    picture:"",
+
     role: "",
     password: "",
     repeatpassword: "",
@@ -39,6 +55,76 @@ function AddEmploye(props) {
       setEmploye({ ...myoldState });
     }
   };
+
+
+  const uploadPicture=(name,data,type)=>{
+    
+    let form_data=new FormData();
+    form_data.append("img",data);
+    form_data.append("name",name);
+    form_data.append("type",type);
+    let request = fetch(
+      UPLOAD_ENDPOINT,
+      {
+        headers:{
+          'Accept': 'application/json',
+          'Content-Type': 'multipart/form-data',
+      },
+        method:"POST",
+         body: form_data
+       }
+     );
+     console.log("server is:",UPLOAD_ENDPOINT,"data is:",form_data)
+     request.then((response) => {
+       console.log("upload picture response:", response.status);
+       if (response.status == 200) {
+         console.log(" succès");
+       } else {
+         console.log(
+           "response status:",
+           response.status,
+           "full response data:",
+           response
+         );
+       }
+     }).catch(e=>{
+       console.log("upload error is:",e)
+     });
+    //end
+  
+}
+
+  const pickImage = async () => {
+    let myoldState = employe;
+    
+    myoldState.picture_data = "value";
+    setEmploye({ ...myoldState });
+
+    ImagePicker.openPicker({
+      width: 500,
+      includeBase64:true,
+      height: 400,
+      //cropping: true
+    }).then((image) => {
+      console.log(image);
+      ImagePicker.openCropper({
+        path: image.path,
+        width: 500,
+        height: 400,
+        includeBase64:true
+      }).then((image1) => {
+        console.log(image1);
+        
+        let myoldState = employe;
+        employe.picture = image1.data;
+        employe.picture_path=image1.path;
+       // setHouse({ ...myoldState });
+
+       // console.log("setted picture data", house.picture_data);
+      });
+    });
+  };
+
 
   const verifData = () => {
     let dataError = {
@@ -85,7 +171,9 @@ function AddEmploye(props) {
   const addEmployee = () => {
    firestoreUser.where("email","==",employe.email).get().then((snapshot)=>{
      if(snapshot.empty){
-      firestoreUser.add({firstname:employe.firstname,lastname:employe.lastname,email:employe.email,password:employe.password,role:employe.role,picture:"static_picture.png"}).then((result)=>{
+       let name=new Date().getTime()+"";
+      uploadPicture(name,employe.picture,"user");
+      firestoreUser.add({firstname:employe.firstname,lastname:employe.lastname,email:employe.email,password:employe.password,role:employe.role,picture:name+".png"}).then((result)=>{
         console.log("employee is:", employe);
         props.navigation.navigate("EmployesList")
       }).catch((e)=>{
@@ -100,6 +188,11 @@ function AddEmploye(props) {
   return (
     <ScrollView style={styles.scroll_view}>
       <View style={styles.main_container}>
+<TouchableOpacity  style={styles.user_picture} onPress={()=>{pickImage()}}>
+  <Image  style={styles.user_picture} source={ employe.picture_path!=""? { uri: employe.picture_path }
+                      : ImageRef.house_add_image} ></Image>
+</TouchableOpacity>
+
         <TextInput
           placeholder="Nom"
           value={employe.lastname}
@@ -178,6 +271,13 @@ function AddEmploye(props) {
 }
 
 const styles = StyleSheet.create({
+  user_picture:{
+width:SCREEN_WIDTH*0.3,
+height:SCREEN_WIDTH*0.3,
+borderRadius:SCREEN_WIDTH*0.3,
+borderColor:MAIN_BLUE,
+borderWidth:1.5
+  },
   scroll_view: {
     flex: 1,
   },

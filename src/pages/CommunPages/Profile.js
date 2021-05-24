@@ -4,7 +4,7 @@ import { white ,MAIN_BLUE, black} from '../../config/Colors';
 import IconAntDesign from "react-native-vector-icons/AntDesign";
 import { RFPercentage } from "react-native-responsive-fontsize";
 import AsyncStorage from '@react-native-community/async-storage';
-import { CURRENT_USER_KEY, DataBaseRef, FirebaseStorage } from '../../config/Constant';
+import { CURRENT_USER_KEY, DataBaseRef, FirebaseStorage, USER_PICTURE_URL } from '../../config/Constant';
 import { TextInput } from 'react-native-gesture-handler';
 import { db, firestorage } from '../../config/serverConfig';
 const { height, width } = Dimensions.get("window");
@@ -17,10 +17,11 @@ function Profile(props) {
 
   const [currentUser, setCurrentUser] = useState({
     id: 1,
-    firstname: "hedi",
-    lastname: "karray",
-    email: "hedi.karray@esprit.tn",
-    role: "employee",
+    firstname: "",
+    lastname: "",
+    email: "",
+    role: "",
+    picture:""
   });
 const [changePasswordForm,setChangePasswordForm]=useState(false);
 const [PasswordFormData,setPasswordFormData]=useState({old_password:"",new_password:"",confirm_password:"",password_form_error:""});
@@ -87,7 +88,7 @@ console.log("apres modification des champs",changePasswordForm)
 
              
              <View style={styles.user_simple_data}>
-                <Image style={styles.user_picture} source={require("../../assets/images/login_cover.jpg")}/>
+                <Image style={styles.user_picture} source={{uri: USER_PICTURE_URL+currentUser.picture}}/>
                <TouchableOpacity style={styles.edit_button}><Text style={{display:"flex",justifyContent:"center",alignItems:"center"}}> <IconAntDesign  name="edit" size={25} color="#1e73be" /></Text></TouchableOpacity>
                <Text style={styles.username}>{currentUser.firstname} {currentUser.lastname}</Text>
                <View style={styles.personal_info_container}> 

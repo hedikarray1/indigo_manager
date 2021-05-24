@@ -4,7 +4,8 @@ import React from "react";
 export const CURRENT_USER_KEY ="current_user";
 export const CURRENT_USER_CREDENTIALS_KEY ="current_user_credentials";
 
-export const SERVER_URL="https://indigo-properties.com";
+//export const SERVER_URL="https://indigo-properties.com";
+export const SERVER_URL="https://stupefied-johnson.51-210-46-0.plesk.page"
 export const UPLOAD_ENDPOINT=SERVER_URL+"/indigo_manager/upload.php"
 export const USER_PICTURE_URL=SERVER_URL+"/indigo_manager/user_pictures/"
 export const ITEMS_PICTURE_URL=SERVER_URL+"/indigo_manager/items_pictures/"
@@ -14,5 +15,5 @@ export const SIGNATURE_PICTURE_URL=SERVER_URL+"/indigo_manager/signature_picture
 export const SCREEN_HEIGHT = Dimensions.get("window").height;
 export const SCREEN_WIDTH = Dimensions.get("window").width;
 export const DataBaseRef = { house: "house",
-user:"user",reservation:"reservation",houseItem:"houseItem" };
+user:"user",reservation:"reservation",houseItem:"houseItem",checkItem:"checkItem" };
 export const FirebaseStorage = { house: "house" ,user:"user"};

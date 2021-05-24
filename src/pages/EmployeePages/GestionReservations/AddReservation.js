@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 import { ScrollView, Text, View } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { TextInput } from 'react-native-gesture-handler';
-import { CURRENT_USER_KEY, DataBaseRef, FirebaseStorage, SCREEN_WIDTH, SERVER_URL, SIGNATURE_PICTURE_URL, UPLOAD_ENDPOINT } from '../../../config/Constant';
+import { CURRENT_USER_KEY, DataBaseRef, FirebaseStorage, HOUSE_PICTURE_URL, SCREEN_WIDTH, SERVER_URL, SIGNATURE_PICTURE_URL, UPLOAD_ENDPOINT } from '../../../config/Constant';
 import { db, firestorage } from '../../../config/serverConfig';
 
 import { SketchCanvas } from '@terrylinla/react-native-sketch-canvas';
@@ -13,13 +13,15 @@ import * as RNFS from 'react-native-fs';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
+import { Modal } from 'react-native';
+import AddCheckInItems from './AddCheckInItems';
 
 
 function AddReservation() {
     const [houses, sethouses] = useState([]);
     const [housesItems, sethousesItems] = useState([]);
     const [value, setValue] = useState(null);
-
+    const [checkInItems, setCheckInItems] = useState([]);
     const [reservation,setReservation]=useState({customer_firstname:"",customer_lastname:"",customer_email:"",employe_id:"",income_date:"",outcome_date:"",checkin_date:"",checkout_date:"",checkin_signature:"",checkout_signature:"",house_id:""})
     const firestoreHouse = db.collection(DataBaseRef.house);
     const firebaseStoreHouse = firestorage.ref(FirebaseStorage.house);
@@ -28,12 +30,54 @@ function AddReservation() {
     const [signature_canva_path,setSignature_canva_path]=useState("");
     const [showIncome,setShowIncome]=useState(false);
     const [showOutcome,setShowOutcome]=useState(false);
+    const[checkInVisibility,setCheckInVisibility]=useState(false);
 const [loading,setLoading]=useState(true);
 
 useEffect(() => {
    // console.log(housesItems);
    setLoading(false)
   }, [housesItems]);
+
+  useEffect(() => {
+    // console.log(housesItems);
+   }, [reservation]);
+ 
+ 
+  const cancelCheckinItems=()=> {
+   setCheckInVisibility(false);
+  }
+
+
+  const showCheckinItems=()=> {
+   setCheckInVisibility(true)
+  }
+  const finishCheckinItems=(items)=> {
+
+    items.forEach((item,index)=>{
+        let data={};
+        let name=new Date().getTime()+"";
+        if(item.state==false){
+            uploadPicture(name,item.picture_data,"item");
+      data={is_checkin:item.is_checkin,title:item.title,description:item.description,picture:name+".png",state:item.state,observation:item.observation}
+          }else{
+              data={is_checkin:item.is_checkin,title:item.title,description:item.description,picture:item.picture,state:item.state,observation:""}
+      
+          }
+
+
+          if(items.size-1<=index){
+            setCheckInItems(items);
+
+          }
+        
+      
+      })
+
+
+   setCheckInVisibility(false);
+   
+  }
+
   //  const firebaseStoreHouse = firestorage.ref(FirebaseStorage.house);
   const  getHouses = async () => {
       console.log("start getting product");
@@ -48,23 +92,20 @@ useEffect(() => {
           }
           snapshot.forEach(async (val,index) => {
             console.log("val :", val);
-            await firebaseStoreHouse
-              .child(val.data().picture)
-              .getDownloadURL()
-              .then((url) => {
+        
                 hous.push({
                   id: val.id,
                   title: val.data().title,
                   description: val.data().description,
                   status: val.data().status,
                   picture: val.data().picture,
-                  picture_url: url,
+                  picture_url:HOUSE_PICTURE_URL+ val.data().picture,
                 });
 
                 housItems.push({
                     value: val.id,
                     label: val.data().title,
-                    icon: ()=>(<Image style={styles.dropdown_icon}  source={{ uri: url }}  />),
+                    icon: ()=>(<Image style={styles.dropdown_icon}  source={{ uri: HOUSE_PICTURE_URL+ val.data().picture}}  />),
              
                   });
                 
@@ -100,10 +141,7 @@ if(index===snapshot.size-1){
                   //  sethouses(hous);
                  
                 
-              })
-              .catch((reason) => {
-                console.log("erreur: ", reason);
-              });
+           
         
           });
          
@@ -128,9 +166,13 @@ const uploadPicture=(name,path,type)=>{
       form_data.append("name",name);
       form_data.append("type",type);
       let request = fetch(
-        UPLOAD_ENDPOINT 
+        UPLOAD_ENDPOINT
           ,
          {
+        headers:{
+            'Accept': 'application/json',
+            'Content-Type': 'multipart/form-data',
+        },
            method: "POST",
            body: form_data
          }
@@ -154,6 +196,16 @@ const uploadPicture=(name,path,type)=>{
        console.log("read file error:",err)
      });
  }
+
+ 
+
+
+const onChangeCustomerData=(field,value)=>{
+  
+   
+    setReservation({...reservation,[field]:value});
+}
+
  const saveReservation=async ()=>{
      const data=await AsyncStorage.getItem(CURRENT_USER_KEY);
      if(data!=null){
@@ -169,6 +221,18 @@ const uploadPicture=(name,path,type)=>{
      setReservation(oldreservation);
      firestoreReservation.add(reservation).then(res=>{
          console.log("reservation added",res);
+
+checkInItems.forEach((item,index)=>{
+
+    firestoreCheckItem.add({...item,reservation_id:res.id}).then((res)=>{
+        console.log("item checkin added ");
+    }).catch(e=>{
+        console.log("add check in item"+index+" error :",e);
+    })
+
+})
+
+
      }).catch(e=>{
          console.log("error when add reservation");
      })
@@ -196,15 +260,15 @@ const uploadPicture=(name,path,type)=>{
                placeholder="selectionner une maison" 
                setValue={setValue} 
                searchable={true} 
-               onChangeValue={(val)=>{let old_reservation=reservation; old_reservation.house_id=val;setReservation(old_reservation)}}
+               onChangeValue={(val)=>{setReservation({...reservation,house_id:val})}}
               
                containerStyle={{marginVertical:10}}  ></DropDownPicker>
           <Text>Nom du client</Text>
-          <TextInput placeholder="nom du client"></TextInput>
+          <TextInput value={reservation.customer_lastname} onChangeText={(val)=>{onChangeCustomerData("customer_lastname",val)}} placeholder="nom du client"></TextInput>
           <Text>Prenom du client</Text>
-          <TextInput placeholder="prenom du client"></TextInput>
+          <TextInput value={reservation.customer_firstname} onChangeText={(val)=>{onChangeCustomerData("customer_firstname",val)}} placeholder="prenom du client"></TextInput>
           <Text>Email du client</Text>
-          <TextInput placeholder="Email du client"></TextInput>
+          <TextInput value={reservation.customer_email} onChangeText={(val)=>{onChangeCustomerData("customer_email",val)}} placeholder="Email du client"></TextInput>
           <Text>Signature client</Text>
           <View style={{ width:SCREEN_WIDTH,height:300, flexDirection: 'row',borderColor:"black",borderStyle:"solid",borderWidth:1 }}>
           <RNSketchCanvas
@@ -281,12 +345,38 @@ const uploadPicture=(name,path,type)=>{
       )}
       </View>
         */}
-      <View>
-          <TouchableOpacity onPress={()=>{saveReservation()}}>
-              <Text>Suivant</Text>
+
+<Modal
+              animationType={"slide"}
+              transparent={false}
+              style={{ width: "95%", height: "85%" }}
+              visible={checkInVisibility}
+              onRequestClose={() => {
+                console.log("Modal has been closed.");
+              }}
+            >
+              <AddCheckInItems
+              houseId={reservation.house_id}
+
+                cancelCheckinItems={() => {
+                  cancelUCheckinItems();
+                }}
+                finishCheckinItems={(items) => {
+                 finishCheckinItems(items);
+                }}
+              ></AddCheckInItems>
+            </Modal>
+            <View>
+          <TouchableOpacity onPress={()=>{showCheckinItems()}}>
+              <Text>Liste des options</Text>
           </TouchableOpacity>
       </View>
-
+      <View>
+          <TouchableOpacity onPress={()=>{saveReservation()}}>
+              <Text>Terminer</Text>
+          </TouchableOpacity>
+      </View>
+    
 
            </View>
 

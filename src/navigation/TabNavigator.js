@@ -40,6 +40,18 @@ const AdminBottomTabNavigator = () => {
           ),
         }}
       />
+
+<Tab.Screen
+        name="Reservations"
+        component={AdminStack}
+        initialParams={{ screen: "ReservationListScreen" }}
+        options={{
+          tabBarIcon: ({ focused, color, size }) => (
+            <IconAntDesign name="carryout" color={color} size={size} />
+          ),
+        }}
+      />
+
       <Tab.Screen
         name="Employes"
         component={AdminStack}
